@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>T&amp;G Ireland Adventure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #efe7d4;
+    --bg-card: #f7f1e3;
+    --ink: #23301d;
+    --ink-soft: #5a5c4e;
+    --green: #33502e;
+    --green-deep: #223a1f;
+    --gold: #b8862e;
+    --rust: #a3452a;
+    --line: #cdc2a1;
+    --line-soft: #ddd4b8;
+    --white: #fffdf7;
+  }
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ margin:0; padding:0; background:var(--bg); color:var(--ink); }
+  body{
+    font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 64px;
+  }
+  h1,h2,h3{ font-family:'Fraunces', Georgia, serif; margin:0; font-weight:600; }
+
+  /* ---------- Header ---------- */
+  header{
+    background: var(--green-deep);
+    color: var(--white);
+    padding: 22px 18px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  header .map-motif{
+    position:absolute; right:-30px; top:-20px; width:190px; height:190px;
+    opacity:0.10; pointer-events:none;
+  }
+  header h1{
+    font-size: 1.7rem;
+    letter-spacing: 0.01em;
+    position: relative; z-index:1;
+  }
+  header .sub{
+    font-size: 0.92rem;
+    color: #d9d3bd;
+    margin-top: 4px;
+    position: relative; z-index:1;
+  }
+
+  /* ---------- Day pill scroller ---------- */
+  nav.days{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding: 12px 14px;
+    background: var(--green);
+    scrollbar-width:none;
+    position: sticky;
+    top:0;
+    z-index: 20;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  }
+  nav.days::-webkit-scrollbar{ display:none; }
+  nav.days button{
+    flex: 0 0 auto;
+    font-family:'Work Sans', sans-serif;
+    font-weight:600;
+    font-size: 0.92rem;
+    background: rgba(255,255,255,0.08);
+    color: #eae4cd;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 10px;
+    padding: 10px 15px;
+    cursor:pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  nav.days button.active{
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #2a2005;
+  }
+  nav.days button.overview-btn{
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.35);
+  }
+  nav.days button.overview-btn.active{
+    background: var(--white);
+    color: var(--green-deep);
+    border-color: var(--white);
+  }
+
+  main{ max-width: 640px; margin: 0 auto; padding: 18px 16px 10px; }
+
+  /* ---------- Day header block ---------- */
+  .day-head{
+    margin-bottom: 18px;
+  }
+  .day-head .kicker{
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--rust);
+    letter-spacing: 0.02em;
+  }
+  .day-head .kicker.travel{ color: var(--gold); }
+  .day-head h2{ font-size: 1.5rem; margin-top: 2px; color: var(--green-deep); }
+  .day-head .note{
+    margin-top: 8px;
+    font-size: 0.97rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+
+  /* ---------- Stay card ---------- */
+  .stay-card{
+    display:flex;
+    gap: 12px;
+    align-items:flex-start;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 13px 14px;
+    margin-bottom: 20px;
+  }
+  .stay-card svg{ flex:0 0 auto; margin-top:2px; }
+  .stay-card .label{ font-size:0.78rem; font-weight:600; color:var(--ink-soft); text-transform: none; }
+  .stay-card .name{ font-family:'Fraunces', serif; font-size:1.08rem; font-weight:600; color:var(--green-deep); margin-top:1px;}
+  .stay-card .addr{ font-size:0.86rem; color:var(--ink-soft); margin-top:2px; }
+  .stay-card .maplinks{ margin-top:6px; font-size:0.84rem; }
+  .stay-card .maplinks a{ color:var(--green); font-weight:600; text-decoration:none; }
+  .stay-card .maplinks a:not(:last-child)::after{ content:"  ·  "; color: var(--line); font-weight:400; }
+
+  /* ---------- Section ---------- */
+  section.block{ margin-bottom: 24px; }
+  .block-title{
+    display:flex; align-items:center; gap:8px;
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--green-deep);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .block-title svg{ flex: 0 0 auto; }
+
+  .enroute-tag{
+    display:inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--rust);
+    background: rgba(163,69,42,0.09);
+    border: 1px solid rgba(163,69,42,0.25);
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    letter-spacing: 0.01em;
+  }
+
+  /* ---------- Place card ---------- */
+  .place{
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 13px 14px;
+    margin-bottom: 10px;
+    background: var(--white);
+  }
+  .place .pname{
+    font-family:'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--green-deep);
+    margin-bottom: 2px;
+  }
+  .place .paddr{
+    font-size: 0.83rem;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .place .pdesc{
+    font-size: 0.93rem;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .place .plinks{ font-size: 0.85rem; }
+  .place .plinks a{
+    color: var(--green);
+    font-weight: 600;
+    text-decoration: none;
+    margin-right: 14px;
+    display: inline-block;
+  }
+  .place .plinks a:hover{ text-decoration: underline; }
+
+  .empty-note{
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    font-style: italic;
+    border-left: 3px solid var(--line);
+    padding-left: 10px;
+  }
+
+  /* ---------- Overview ---------- */
+  .ov-title{ font-size: 1.5rem; color: var(--green-deep); margin-bottom: 4px; }
+  .ov-sub{ color: var(--ink-soft); font-size: 0.95rem; margin-bottom: 18px; }
+  .timeline{ position: relative; padding-left: 22px; }
+  .timeline::before{
+    content:"";
+    position:absolute; left:6px; top:6px; bottom:6px;
+    width:2px; background: var(--line);
+  }
+  .tl-item{
+    position:relative;
+    padding-bottom: 20px;
+    cursor:pointer;
+  }
+  .tl-item:last-child{ padding-bottom:0; }
+  .tl-item::before{
+    content:"";
+    position:absolute; left:-22px; top:4px;
+    width:11px; height:11px; border-radius:50%;
+    background: var(--gold);
+    border: 2px solid var(--white);
+    box-shadow: 0 0 0 1px var(--gold);
+  }
+  .tl-item .tl-day{ font-size:0.78rem; font-weight:700; color:var(--rust); }
+  .tl-item .tl-name{ font-family:'Fraunces', serif; font-weight:600; font-size:1.05rem; color:var(--green-deep); }
+  .tl-item .tl-loc{ font-size:0.87rem; color:var(--ink-soft); }
+
+  footer{
+    text-align:center;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    padding: 26px 18px 10px;
+  }
+
+  @media (max-width: 380px){
+    body{ font-size: 16px; }
+    header h1{ font-size: 1.45rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <svg class="map-motif" viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M100 8c14 10 28 6 38 18 9 11 6 24 16 32 12 10 8 26 2 36 8 10 14 22 8 34-5 10-18 12-20 24-2 13 10 20 4 32-6 13-24 14-30 26-5 10 2 20-8 26-12 7-26 0-36-8-9-7-8-20-18-26-11-7-24-2-32-12-7-9 0-20-8-28-9-9-22-8-26-20-4-11 6-20 2-30-4-11-18-14-16-26 2-11 16-14 20-24 4-10-4-20 4-28 8-9 22-6 30-14 7-8 4-20 14-26 8-5 18 0 26-6z" stroke="#fffdf7" stroke-width="2"/>
+  </svg>
+  <h1>T&amp;G Ireland Adventure</h1>
+  <div class="sub">A day-by-day companion for the West of Ireland loop</div>
+</header>
+
+<nav class="days" id="dayNav"></nav>
+
+<main id="main"></main>
+
+<footer>Safe travels &amp; good craic.</footer>
+
+<script>
+/* ---------------- ICONS ---------------- */
+const ICONS = {
+  bed: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#33502e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18v-7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v7"/><path d="M2 18v2M22 18v2"/><path d="M4 11V7a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v4"/><path d="M13 11h6a1 1 0 0 1 1 1v0"/></svg>`,
+  food: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#33502e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v7a2 2 0 0 0 2 2v11M6 2a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2M10 2v11"/><path d="M18 2c-2 0-3 2-3 5v3c0 1 .5 2 2 2v10"/></svg>`,
+  compass: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#33502e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`,
+  car: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b8862e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17a2 2 0 1 0 4 0 2 2 0 1 0-4 0M15 17a2 2 0 1 0 4 0 2 2 0 1 0-4 0"/><path d="M5 17H3v-5l2-5h12l3 5h1v5h-2M5 17h10"/></svg>`
+};
+
+/* ---------------- DATA ---------------- */
+function place(name, addr, desc, url){ return {name, addr, desc, url}; }
+
+const DAYS = [
+  {
+    num: 1, kicker: "Arrival Day", kickerClass: "",
+    title: "Landing in County Clare",
+    note: "Once the rental car's sorted, it's an easy, short drive from the airport out to Smithstown \u2014 a good first stretch of Irish road before anything more ambitious. No itinerary to rush through today \u2014 just get settled.",
+    stay: place("Balally House", "14 Ros an Oir, Smithstown, Co. Clare",
+      "A purpose-built, Georgian-style bed and breakfast.", "https://www.google.com/search?q=Balally+House+Smithstown+Clare"),
+    food: [
+      place("Brogan's Bar &amp; Restaurant", "24 O'Connell Street, Clonroad Beg, Ennis, Co. Clare",
+        "The one that keeps coming up from actual Clare residents, not just visitors passing through \u2014 the oldest family-run bar and restaurant in Ennis, old-school pub atmosphere, hearty menu, and live traditional music some nights.",
+        "https://discoverireland.ie/clare/brogans-bar-and-restaurant"),
+      place("The Cloister Restaurant &amp; Bar", "Abbey Street, Ennis, Co. Clare",
+        "Set right in the grounds of Ennis Friary \u2014 the step-up choice for a proper sit-down dinner, with a locally sourced menu and a well-regarded seafood chowder in the bar side.",
+        "https://www.hotpress.com/culture/the-cloister-22752348")
+    ],
+    sights: [
+      place("Dromore Wood Nature Reserve", "Ruan, near Ennis, Co. Clare",
+        "A 1,000-acre reserve with lakes, woodland trails, and the ruins of the 17th-century O'Brien Castle by the lake edge. Free, quiet, and essentially unknown outside of locals.",
+        "https://discoverireland.ie/clare/dromore-wood-nature-reserve-visitor-centre")
+    ],
+    enroute: null
+  },
+  {
+    num: 2, kicker: "Day 2 \u00b7 Ennis area", kickerClass: "",
+    title: "A free day around Ennis &amp; the Burren",
+    note: "Second night in the same spot \u2014 a good day to range a little further out toward the Burren without needing to pack up.",
+    stay: place("Balally House", "14 Ros an Oir, Smithstown, Co. Clare",
+      "A purpose-built, Georgian-style bed and breakfast.", "https://www.google.com/search?q=Balally+House+Smithstown+Clare"),
+    food: [
+      place("Brogan's Bar &amp; Restaurant", "24 O'Connell Street, Clonroad Beg, Ennis, Co. Clare",
+        "Worth a second visit or a first, if you skipped it yesterday \u2014 hearty comfort food and a genuinely local crowd.",
+        "https://discoverireland.ie/clare/brogans-bar-and-restaurant"),
+      place("The Cloister Restaurant &amp; Bar", "Abbey Street, Ennis, Co. Clare",
+        "The more refined option if tonight calls for a proper sit-down dinner.",
+        "https://www.hotpress.com/culture/the-cloister-22752348")
+    ],
+    sights: [
+      place("Father Ted's House (Parochial House)", "Kilnaboy, the Burren, Co. Clare",
+        "A genuinely offbeat stop for fans of the show \u2014 the real house used as the parochial house on Craggy Island, privately owned by a family who sometimes offer afternoon tea in the actual kitchen. Call ahead, it's a private home.",
+        "https://www.irelands-blue-book.ie/our-blog.html/8-things-to-do-in-clare"),
+      place("Craggaunowen \u2014 The Living Past", "Kilmurry, near Quin, Co. Clare",
+        "Ireland's original prehistoric park \u2014 reconstructed crannog dwellings, a Celtic ring fort, a 2,000-year-old oak road, and the actual leather-hulled Brendan Boat that sailed the Atlantic in the 1970s. A fraction of Bunratty's crowds.",
+        "https://www.lonelyplanet.com/ireland/quin/attractions/craggaunowen/a/poi-sig/1173700/1316652")
+    ],
+    enroute: null
+  },
+  {
+    num: 3, kicker: "Travel Day", kickerClass: "travel",
+    title: "Ennis \u2192 Killarney",
+    note: "Via the N21 \u2014 Limerick, Adare, and Newcastle West \u2014 before turning into County Kerry.",
+    stay: place("Brook Lodge", "Monsignor O'Flaherty Road, Killarney, Co. Kerry",
+      "A boutique hotel just off High Street, in the centre of Killarney.", "https://www.google.com/search?q=Brook+Lodge+Killarney"),
+    food: [], sights: [],
+    enroute: {
+      food: [
+        place("Dan Cronin's Bar &amp; Bistro", "Newcastle West, Co. Limerick",
+          "The local go-to on this drive, not a coach-tour stop \u2014 known for an All-Ireland Award-winning seafood chowder with homemade bread. Sits roughly at the halfway point, a natural place to break for lunch.",
+          "https://www.limerick.ie/discover/explore/areas-limerick/newcastle-west/newcastle-west-adults")
+      ],
+      sights: [
+        place("Curraghchase Forest Park", "Kilcornan, Co. Limerick (a few minutes off the N21, near Adare)",
+          "A 774-acre former estate turned forest park \u2014 walking trails past a lake and an old arboretum. Stays quiet even in season, unlike Adare itself, which is often congested with through-traffic. \u20ac5 per car.",
+          "https://www.limerick.ie/discover/eat-see-do/nature-wildlife/forest-parks/curraghchase-forest-park")
+      ]
+    }
+  },
+  {
+    num: 4, kicker: "Day 2 \u00b7 Killarney", kickerClass: "",
+    title: "A free day around Killarney",
+    note: "Killarney's town centre is genuinely the most touristy stop on the whole loop, so it's worth tempering expectations here \u2014 but the national park itself has quieter corners.",
+    stay: place("Brook Lodge", "Monsignor O'Flaherty Road, Killarney, Co. Kerry",
+      "A boutique hotel just off High Street, in the centre of Killarney.", "https://www.google.com/search?q=Brook+Lodge+Killarney"),
+    food: [
+      place("Mac's of Main Street", "Main Street, Killarney, Co. Kerry",
+        "The place actual locals keep pointing to instead of the more obvious options on Main Street. Family-run, more full of locals who just plain like its vibe and its food than most of what's around it.",
+        "https://www.tripadvisor.com/ShowTopic-g186591-i88-k6772680-Killarney_non_tourist_restaurants_pubs-Ireland.html")
+    ],
+    sights: [
+      place("The Black Valley", "Beyond the Gap of Dunloe, Killarney National Park, Co. Kerry",
+        "A remote valley reached by driving through the Gap of Dunloe \u2014 genuinely one of the last parts of Ireland to get electricity. Dramatically less visited than the main lake loop.",
+        "https://aboutirelandtaxitours.wetravel.com/i/699702abfda7d7817181daca")
+    ],
+    enroute: null
+  },
+  {
+    num: 5, kicker: "Travel Day", kickerClass: "travel",
+    title: "Killarney \u2192 Bantry",
+    note: "Via Kenmare and Glengarriff \u2014 one of the most scenic drives of the whole loop.",
+    stay: place("Bantry House &amp; Garden", "Seafield, Bantry, Co. Cork",
+      "An estate owned by generations of the White family since 1739, on Bantry Bay. Entrance intercom at the Gatelodge arch.", "https://www.google.com/search?q=Bantry+House+and+Garden"),
+    food: [], sights: [],
+    enroute: {
+      food: [
+        place("Packie's", "Henry Street, Kenmare, Co. Kerry",
+          "One of the two places in Kenmare that locals actually go to, not just visitors stopping through on the Ring of Kerry. Candlelit, unpretentious, built around local ingredients.",
+          "https://www.frommers.com/destinations/kenmare/restaurants/"),
+        place("Purple Heather", "Henry Street, Kenmare, Co. Kerry",
+          "The other local favorite in Kenmare \u2014 small, cozy, and simple. Good for a leisurely pint at the bar or salads and sandwiches at lunch.",
+          "https://www.frommers.com/destinations/kenmare/restaurants/"),
+        place("Manning's Emporium", "Ballylickey, Bantry, Co. Cork",
+          "A genuine West Cork institution rather than a restaurant \u2014 a farm shop and deli since 1946. Less a sit-down meal, more a great stop for local cheese, bread, and charcuterie for a casual bite, right on the way into Bantry.",
+          "https://www.discoverireland.ie/cork/restaurants-west-cork")
+      ],
+      sights: [
+        place("Ring of Beara", "Beara Peninsula, starting near Kenmare",
+          "The wilder, much quieter alternative to the Ring of Kerry \u2014 same category of rugged coastline and waterfalls, a fraction of the tour-bus traffic. An easy detour since you're already routing near Kenmare.",
+          "https://www.irelandbeforeyoudie.com/?p=104074"),
+        place("Derreen Garden", "Lauragh, near Kenmare (on the Beara Peninsula)",
+          "Sub-tropical gardens built up over generations by an Edwardian family, boosted by the Gulf Stream's mild climate. The kind of garden even avid garden-visitors often haven't heard of, and it stays peaceful even in high season.",
+          "https://www.ireland-guide.com/towns/kenmare.749.html")
+      ]
+    }
+  },
+  {
+    num: 6, kicker: "Day 2 \u00b7 Bantry", kickerClass: "",
+    title: "A free day around Bantry &amp; West Cork",
+    note: "This is the strongest food region of the whole trip \u2014 worth lingering.",
+    stay: place("Bantry House &amp; Garden", "Seafield, Bantry, Co. Cork",
+      "An estate owned by generations of the White family since 1739, on Bantry Bay. Entrance intercom at the Gatelodge arch.", "https://www.google.com/search?q=Bantry+House+and+Garden"),
+    food: [
+      place("Fish Kitchen", "The Maritime Hotel, New Street, Bantry, Co. Cork",
+        "Repeatedly called out by actual Bantry locals, not just reviewers passing through \u2014 emphasis on fresh local seafood. The chowder and crab sandwich are the standouts, and it's reasonably priced for the quality.",
+        "https://wanderlog.com/place/details/489434/fish-kitchen"),
+      place("Blairscove Restaurant", "Blairscove, Durrus Road, Bantry, Co. Cork",
+        "A short drive outside Bantry proper, which is part of why it isn't overrun \u2014 set in a converted barn, known for Irish meat grilled on an open fire and an impressive 'help yourself' starter display. A genuine destination restaurant; reservations essential.",
+        "https://www.blairscove.ie")
+    ],
+    sights: [
+      place("Gougane Barra", "Gougane Barra Forest Park, near Bantry, Co. Cork",
+        "One of West Cork's most atmospheric, least crowded spots \u2014 a tiny stone oratory on an island in a still lake, ringed by forested hills, marking where St. Finbarr lived in the 6th century. Free; small parking fee to drive into the forest park.",
+        "http://gouganebarra.com"),
+      place("Sheep's Head Way", "Loop drive/walk starting outside Bantry, Co. Cork",
+        "A scenic peninsula loop \u2014 the 'Goat's Path' out to Kilcrohane, back via Ahakista and Durrus \u2014 with sea views on both sides and essentially none of the Ring of Kerry crowds. Drivable in an afternoon, or walk sections of it.",
+        "https://www.irelands-hidden-gems.com/Sheeps-Head.html")
+    ],
+    enroute: null
+  },
+  {
+    num: 7, kicker: "Travel Day", kickerClass: "travel",
+    title: "Bantry \u2192 Cahir",
+    note: "Mostly N71/N8-M8 motorway through Cork and Mitchelstown \u2014 the one leg without a specific local food find worth vouching for. Honest gap rather than a manufactured recommendation.",
+    stay: place("Cahir House", "The Square, Cahir, Co. Tipperary",
+      "A historic 18th-century manor house on the main square, overlooking the River Suir and Cahir Castle.", "https://www.google.com/search?q=Cahir+House+Hotel"),
+    food: [], sights: [],
+    enroute: {
+      food: [],
+      sights: [
+        place("Glen of Aherlow &amp; the Vee Gap", "Between the Galtee Mountains and Slievenamuck, near Bansha, Co. Tipperary",
+          "National Geographic recently called this valley one of Ireland's most overlooked destinations \u2014 'true Ireland,' largely undeveloped for tourism. The Vee Gap road through the Knockmealdown Mountains (via Clogheen) is a genuinely scenic alternative to the motorway, with dramatic views and almost no traffic.",
+          "https://www.irishcentral.com/travel/glen-of-aherlow-tipperary")
+      ]
+    }
+  },
+  {
+    num: 8, kicker: "Day 2 \u00b7 Cahir", kickerClass: "",
+    title: "A free day around Cahir",
+    note: "A compact, walkable market town \u2014 easy to explore on foot with the castle as the anchor.",
+    stay: place("Cahir House", "The Square, Cahir, Co. Tipperary",
+      "A historic 18th-century manor house on the main square, overlooking the River Suir and Cahir Castle.", "https://www.google.com/search?q=Cahir+House+Hotel"),
+    food: [
+      place("The Galtee Inn (Malone's)", "The Square, Townparks, Cahir, Co. Tipperary",
+        "The clear local favorite \u2014 a third-generation, family-run pub known across Tipperary for its steaks and for pouring a great pint. Aimed at Tipperary regulars rather than the castle-visitor crowd.",
+        "https://discoverireland.ie/tipperary/the-galtee-inn"),
+      place("The Gatehouse", "Castle Street, Cahir, Co. Tipperary",
+        "Directly across from Cahir Castle, so it does pull real tourist traffic from the location \u2014 but it's also a genuine local pub, known for arguably the best pint of Guinness in Tipperary.",
+        "https://www.travelextra.ie/?p=110286")
+    ],
+    sights: [
+      place("Farney Castle", "Holycross, Co. Tipperary (about 30 min from Cahir)",
+        "A 15th-century tower house that's still actually inhabited \u2014 one of the last lived-in tower houses in Ireland \u2014 now home to a small, family-run knitwear studio. A quieter, more personal alternative to Cahir Castle. Privately run; call ahead.",
+        "https://www.travelextra.ie/?p=103014")
+    ],
+    enroute: null
+  },
+  {
+    num: 9, kicker: "Travel Day", kickerClass: "travel",
+    title: "Cahir \u2192 Carrygerry",
+    note: "Via Cashel, Tipperary town, and Limerick \u2014 the last full driving day of the loop.",
+    stay: place("Carrygerry Country House", "Newmarket-on-Fergus, Co. Clare",
+      "A true country house originally built in 1793, overlooking the River Shannon. A hidden gem 10 minutes from Shannon Airport, with award-winning local cuisine by chef-proprietor Niall Ennis.", "https://www.google.com/search?q=Carrygerry+Country+House"),
+    food: [
+      place("The Conservatory Restaurant (at Carrygerry)", "Carrygerry Country House, Newmarket-on-Fergus, Co. Clare",
+        "No need to go anywhere else \u2014 it's Carrygerry's own award-winning, locally sourced restaurant, known especially for its creamy seafood chowder and p\u00e2t\u00e9s. Open Thursday through Saturday evenings.",
+        "https://visitclare.ie/?p=12074"),
+      place("Shannigan's Gastro Pub", "The Inn at Dromoland, Newmarket-on-Fergus, Co. Clare",
+        "A well-regarded nearby alternative if tonight calls for a change of scene \u2014 ethically produced, sustainable Irish ingredients with a seasonal menu. More polished hotel dining than a local dive, but genuinely good.",
+        "https://visitclare.ie/?p=7206")
+    ],
+    sights: [],
+    enroute: {
+      food: [
+        place("The Locke Bar", "3 George's Quay, Limerick",
+          "A proper Limerick city riverside pub, right on the Shannon \u2014 known for a solid carvery lunch and a generous full Irish. Worth an actual stop rather than a bypass if the drive routes through Limerick city.",
+          "https://www.irelandbeforeyoudie.com/?p=19571"),
+        place("Hunt Museum Caf\u00e9", "The Hunt Museum, The Custom House, Rutland Street, Limerick",
+          "A lighter, quieter option \u2014 the caf\u00e9 sits inside the museum with a terrace over the Shannon and Curragower Falls. Good for a scenic break rather than a heavier sit-down meal.",
+          "https://www.limerick.ie/discover/eat-see-do/food-drink/cafes/hunt-cafe")
+      ],
+      sights: [
+        place("Hore Abbey", "750m west of the Rock of Cashel, Cashel, Co. Tipperary",
+          "If the drive passes Cashel, this is the one worth the short detour over the Rock of Cashel itself, which draws heavy coach traffic. A 13th-century monastery ruin in a cow pasture just below the Rock \u2014 free, unguided, essentially undiscovered by comparison. Reachable by a short walk through open fields; can be muddy after rain.",
+          "https://www.travelextra.ie/?p=85309")
+      ]
+    }
+  },
+  {
+    num: 10, kicker: "Departure Day", kickerClass: "",
+    title: "Last morning near Shannon",
+    note: "No rush this morning \u2014 just the rental car return and the flight home from here. If there's a spare hour before heading to the airport, one easy last stop close by:",
+    stay: place("Carrygerry Country House", "Newmarket-on-Fergus, Co. Clare",
+      "A true country house originally built in 1793, overlooking the River Shannon.", "https://www.google.com/search?q=Carrygerry+Country+House"),
+    food: [],
+    sights: [
+      place("Mooghaun Hillfort", "Near Newmarket-on-Fergus, Co. Clare",
+        "One of the largest Bronze Age hillforts in Europe, and the site of a major gold hoard discovered in the 1800s. Essentially unsignposted and unvisited \u2014 a good, quiet walk to close out the trip, and only minutes from Carrygerry.",
+        "https://www.discoverireland.ie/newmarket-on-fergus")
+    ],
+    enroute: null
+  }
+];
+
+/* ---------------- RENDER ---------------- */
+function gmaps(q){ return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q); }
+function amaps(q){ return "https://maps.apple.com/?q=" + encodeURIComponent(q); }
+
+function placeCard(p){
+  return `
+  <div class="place">
+    <div class="pname">${p.name}</div>
+    <div class="paddr">${p.addr}</div>
+    <div class="pdesc">${p.desc}</div>
+    <div class="plinks">
+      <a href="${gmaps(p.addr)}" target="_blank" rel="noopener">Google Maps</a>
+      <a href="${amaps(p.addr)}" target="_blank" rel="noopener">Apple Maps</a>
+      <a href="${p.url}" target="_blank" rel="noopener">More info</a>
+    </div>
+  </div>`;
+}
+
+function renderDay(d){
+  const kickerClass = d.kickerClass === "travel" ? "kicker travel" : "kicker";
+  let html = `
+    <div class="day-head">
+      <div class="${kickerClass}">${d.kicker}</div>
+      <h2>${d.title}</h2>
+      <div class="note">${d.note}</div>
+    </div>
+    <div class="stay-card">
+      ${ICONS.bed}
+      <div>
+        <div class="label">Staying at</div>
+        <div class="name">${d.stay.name}</div>
+        <div class="addr">${d.stay.addr}</div>
+        <div class="maplinks">
+          <a href="${gmaps(d.stay.addr)}" target="_blank" rel="noopener">Google Maps</a>
+          <a href="${amaps(d.stay.addr)}" target="_blank" rel="noopener">Apple Maps</a>
+        </div>
+      </div>
+    </div>
+  `;
+
+  if(d.enroute){
+    if(d.enroute.food.length){
+      html += `<section class="block">
+        <div class="block-title">${ICONS.food} Food along the way</div>
+        <span class="enroute-tag">En route</span>
+        ${d.enroute.food.map(placeCard).join("")}
+      </section>`;
+    }
+    if(d.enroute.sights.length){
+      html += `<section class="block">
+        <div class="block-title">${ICONS.compass} Sights along the way</div>
+        <span class="enroute-tag">En route</span>
+        ${d.enroute.sights.map(placeCard).join("")}
+      </section>`;
+    }
+  }
+
+  if(d.food.length){
+    html += `<section class="block">
+      <div class="block-title">${ICONS.food} Food picks</div>
+      ${d.food.map(placeCard).join("")}
+    </section>`;
+  }
+  if(d.sights.length){
+    html += `<section class="block">
+      <div class="block-title">${ICONS.compass} Hidden gems &amp; sights</div>
+      ${d.sights.map(placeCard).join("")}
+    </section>`;
+  }
+  if(!d.food.length && !d.sights.length && !(d.enroute && (d.enroute.food.length || d.enroute.sights.length))){
+    html += `<p class="empty-note">Nothing else lined up \u2014 an open, unplanned stretch.</p>`;
+  }
+
+  document.getElementById("main").innerHTML = html;
+}
+
+function renderOverview(){
+  let html = `
+    <h2 class="ov-title">Trip overview</h2>
+    <div class="ov-sub">Tap a day to jump straight to it.</div>
+    <div class="timeline">
+      ${DAYS.map(d => `
+        <div class="tl-item" data-day="${d.num}">
+          <div class="tl-day">${d.kicker}</div>
+          <div class="tl-name">${d.stay.name}</div>
+          <div class="tl-loc">${d.stay.addr.split(",").slice(-2).join(",").trim()}</div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+  document.getElementById("main").innerHTML = html;
+  document.querySelectorAll(".tl-item").forEach(el => {
+    el.addEventListener("click", () => selectDay(parseInt(el.dataset.day)));
+  });
+}
+
+function buildNav(){
+  const nav = document.getElementById("dayNav");
+  let html = `<button class="overview-btn" data-target="overview">Overview</button>`;
+  DAYS.forEach(d => {
+    html += `<button data-target="${d.num}">${d.num}</button>`;
+  });
+  nav.innerHTML = html;
+  nav.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const t = btn.dataset.target;
+      if(t === "overview"){ selectOverview(); }
+      else { selectDay(parseInt(t)); }
+    });
+  });
+}
+
+function setActiveButton(target){
+  document.querySelectorAll("#dayNav button").forEach(b => {
+    b.classList.toggle("active", b.dataset.target == target);
+  });
+}
+
+function selectDay(n){
+  const d = DAYS.find(x => x.num === n);
+  renderDay(d);
+  setActiveButton(n);
+  window.scrollTo({top:0, behavior:"instant"});
+}
+
+function selectOverview(){
+  renderOverview();
+  setActiveButton("overview");
+  window.scrollTo({top:0, behavior:"instant"});
+}
+
+buildNav();
+selectOverview();
+</script>
+</body>
+</html>
